@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('search');
 
     // Fetch messages from the API
-    fetch('https://prototipo-mqtt.onrender.com/mensajes')
+    fetch('https://mqtt-mixto.onrender.com/mensajes')
         .then(response => response.json())
         .then(data => {
             data.forEach(mensaje => {
