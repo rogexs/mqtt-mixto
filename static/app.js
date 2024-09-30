@@ -4,7 +4,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Fetch messages from the API
     fetch('https://mqtt-mixto.onrender.com/mensajes')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la red: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
             data.forEach(mensaje => {
                 let row = messagesTable.insertRow();

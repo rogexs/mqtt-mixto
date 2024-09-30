@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 import paho.mqtt.client as mqtt
 import requests
@@ -76,6 +76,18 @@ mqtt_client.loop_start()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# Endpoint para obtener los mensajes
+@app.route('/mensajes', methods=['GET'])
+def get_mensajes():
+    try:
+        response = requests.get(supabase_url, headers=headers)
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        else:
+            return jsonify({"error": "Error al obtener mensajes"}), response.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
