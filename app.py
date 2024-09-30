@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, render_template
 from flask_cors import CORS
 import paho.mqtt.client as mqtt
 import requests
@@ -50,12 +50,14 @@ def on_message(client, userdata, message):
     data = {
         "mensaje": msg
     }
-    response = requests.post(supabase_url, headers=headers, json=data)
-    
-    if response.status_code == 201:
-        print("Mensaje almacenado en Supabase con éxito.")
-    else:
-        print(f"Error al almacenar el mensaje en Supabase: {response.status_code}, {response.text}")
+    try:
+        response = requests.post(supabase_url, headers=headers, json=data)
+        if response.status_code == 201:
+            print("Mensaje almacenado en Supabase con éxito.")
+        else:
+            print(f"Error al almacenar el mensaje en Supabase: {response.status_code}, {response.text}")
+    except Exception as e:
+        print(f"Ocurrió un error al realizar la solicitud a Supabase: {e}")
 
 # Configuración del cliente MQTT
 mqtt_client = mqtt.Client()
