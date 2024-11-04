@@ -10,7 +10,7 @@ username = "Receptor-99"
 password = "Receptor-99"
 
 # Configuración de la API de Supabase
-supabase_url = 'https://qiuemjqtqiyyxumrkdga.supabase.co/rest/v1/mensajes_mixtos'
+supabase_url = 'https://qiuemjqtqiyyxumrkdga.supabase.co/rest/v1/mensajes_mixtos?limit=10000'
 api_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpdWVtanF0cWl5eXh1bXJrZGdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczODgyMDMsImV4cCI6MjA0Mjk2NDIwM30.9R7O3A_sVy01z6OgjseBxxks5J5CdVlYnyffAiEV3So'
 
 headers = {
