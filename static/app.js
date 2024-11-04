@@ -9,7 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch(`https://mqtt-mixto.onrender.com/mensajes?page=${page}&limit=${limit}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Error en la red: ' + response.status);
+                    return response.json().then(err => {
+                        // Manejo mejorado del error, mostrando el mensaje de error si está disponible
+                        throw new Error(`Error en la red: ${response.status} - ${err.message || 'No se pudo obtener el mensaje de error.'}`);
+                    });
                 }
                 return response.json();
             })
@@ -26,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => {
                 console.error('Error al obtener los mensajes:', error);
-                console.error('Respuesta de la red:', error.response); // Esto puede no estar disponible, pero pruébalo
             });            
     }
 
