@@ -24,7 +24,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
                 currentPage = page; // Actualizar página actual
             })
-            .catch(error => console.error('Error al obtener los mensajes:', error));
+            .catch(error => {
+                console.error('Error al obtener los mensajes:', error);
+                console.error('Respuesta de la red:', error.response); // Esto puede no estar disponible, pero pruébalo
+            });            
     }
 
     // Función para manejar la búsqueda
