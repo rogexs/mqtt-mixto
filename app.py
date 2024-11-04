@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import paho.mqtt.client as mqtt
 import requests
@@ -77,17 +77,24 @@ mqtt_client.loop_start()
 def index():
     return render_template('index.html')
 
-# Endpoint para obtener los mensajes
+
 @app.route('/mensajes', methods=['GET'])
 def get_mensajes():
     try:
-        response = requests.get(supabase_url, headers=headers)
+        # Obtener página y límite de la solicitud
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+
+        # Calcular los índices de inicio y fin
+        start = (page - 1) * limit
+        end = start + limit
+
+        # Modificar URL de Supabase con el rango
+        paginated_url = f'{supabase_url}&range={start}-{end-1}'
+        response = requests.get(paginated_url, headers=headers)
         if response.status_code == 200:
             return jsonify(response.json()), 200
         else:
             return jsonify({"error": "Error al obtener mensajes"}), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
