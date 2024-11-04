@@ -2,6 +2,12 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import paho.mqtt.client as mqtt
 import requests
+import logging
+import sys
+
+# Configuración del logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
+logger = logging.getLogger()
 
 # Configuración del broker (Cluster HiveMQ)
 broker_url = "fee7a60180ef4e41a8186ff373e7ff32.s1.eu.hivemq.cloud"
@@ -30,21 +36,21 @@ subscription_done = False
 def on_connect(client, userdata, flags, rc):
     global subscription_done
     if rc == 0:
-        print("Conectado al broker MQTT con éxito")
+        logger.info("Conectado al broker MQTT con éxito")
         if not subscription_done:
             client.subscribe("test/topic")
             subscription_done = True
-            print("Suscrito al topic: test/topic")
+            logger.info("Suscrito al topic: test/topic")
         else:
-            print("Ya se realizó la suscripción.")
+            logger.info("Ya se realizó la suscripción.")
     else:
-        print(f"Error al conectarse, código de resultado: {rc}")
+        logger.error(f"Error al conectarse, código de resultado: {rc}")
 
 # Función que se ejecuta cuando se recibe un mensaje
 def on_message(client, userdata, message):
-    print("on_message called")
+    logger.info("on_message called")
     msg = message.payload.decode()
-    print(f"Mensaje recibido en el topic {message.topic}: {msg}")
+    logger.info(f"Mensaje recibido en el topic {message.topic}: {msg}")
     
     # Enviar el mensaje a Supabase
     data = {
@@ -53,11 +59,11 @@ def on_message(client, userdata, message):
     try:
         response = requests.post(supabase_url, headers=headers, json=data)
         if response.status_code == 201:
-            print("Mensaje almacenado en Supabase con éxito.")
+            logger.info("Mensaje almacenado en Supabase con éxito.")
         else:
-            print(f"Error al almacenar el mensaje en Supabase: {response.status_code}, {response.text}")
+            logger.error(f"Error al almacenar el mensaje en Supabase: {response.status_code}, {response.text}")
     except Exception as e:
-        print(f"Ocurrió un error al realizar la solicitud a Supabase: {e}")
+        logger.exception("Ocurrió un error al realizar la solicitud a Supabase")
 
 # Configuración del cliente MQTT
 mqtt_client = mqtt.Client()
@@ -77,7 +83,6 @@ mqtt_client.loop_start()
 def index():
     return render_template('index.html')
 
-
 @app.route('/mensajes', methods=['GET'])
 def get_mensajes():
     try:
@@ -95,6 +100,8 @@ def get_mensajes():
         if response.status_code == 200:
             return jsonify(response.json()), 200
         else:
+            logger.error("Error al obtener mensajes")
             return jsonify({"error": "Error al obtener mensajes"}), response.status_code
     except Exception as e:
+        logger.exception("Ocurrió un error al obtener mensajes")
         return jsonify({"error": str(e)}), 500
