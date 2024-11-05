@@ -81,7 +81,8 @@ def index():
 @app.route('/mensajes', methods=['GET'])
 def get_mensajes():
     try:
-        response = requests.get(supabase_url, headers=headers)
+        # Añade el parámetro limit a la URL para superar el límite predeterminado
+        response = requests.get(f"{supabase_url}?limit=10000", headers=headers)
         if response.status_code == 200:
             return jsonify(response.json()), 200
         else:
