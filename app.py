@@ -81,12 +81,27 @@ def index():
 @app.route('/mensajes', methods=['GET'])
 def get_mensajes():
     try:
-        # Añade el parámetro limit a la URL para superar el límite predeterminado
-        response = requests.get(f"{supabase_url}?limit=10000", headers=headers)
-        if response.status_code == 200:
-            return jsonify(response.json()), 200
-        else:
-            return jsonify({"error": "Error al obtener mensajes"}), response.status_code
+        # Inicializamos variables para la paginación
+        all_messages = []
+        offset = 0
+        limit = 1000  # Establece el límite de registros por consulta
+
+        while True:
+            # Modifica la URL con offset y limit para obtener "páginas" de registros
+            response = requests.get(f"{supabase_url}?limit={limit}&offset={offset}", headers=headers)
+            if response.status_code == 200:
+                messages = response.json()
+                all_messages.extend(messages)  # Añade los mensajes obtenidos a la lista total
+                
+                # Si el número de mensajes obtenidos es menor que el límite, hemos llegado al final
+                if len(messages) < limit:
+                    break
+                # Si no, incrementa el offset para obtener la siguiente "página"
+                offset += limit
+            else:
+                return jsonify({"error": "Error al obtener mensajes"}), response.status_code
+
+        return jsonify(all_messages), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
